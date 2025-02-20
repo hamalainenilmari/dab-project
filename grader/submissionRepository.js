@@ -9,16 +9,17 @@ const create = async (submission,exercise_id) => {
   return result[0];
 };
 
-const updateStatus = async (submission, status) => {
+const updateStatus = async (submissionId, status) => {
     const result = await sql`UPDATE exercise_submissions SET grading_status = ${status}
-        WHERE id = ${submission.id}
+        WHERE id = ${submissionId}
         RETURNING *`;
     return result[0];
 }
 
-const gradeSubmission = async (submission, grade) => {
-    const result = await sql`UPDATE exercise_submissions SET grade = ${grade}, grading_status = "graded"
-        WHERE id = ${submission.id}
+const gradeSubmission = async (submissionId, grade) => {
+    const graded = "graded";
+    const result = await sql`UPDATE exercise_submissions SET grade = ${grade}, grading_status = ${graded}
+        WHERE id = ${submissionId}
         RETURNING *`;
     return result[0];
 }
