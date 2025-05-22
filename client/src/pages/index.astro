@@ -1,7 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Languages from "../components/Languages.svelte"
+import RegisterLogin from "../components/auth/RegistrationAndLoginForm.svelte"
+import UserInfo from "../components/UserInfo.svelte"
 ---
 
-<Layout>
-	<p>Programming time!</p>
-</Layout>
+<Languages client:only/>
+<UserInfo client:only/>
+

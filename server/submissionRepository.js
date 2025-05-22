@@ -9,6 +9,10 @@ const create = async (submission,exercise_id) => {
   return result[0];
 };
 
+const getSubmission = async (id) => {
+  return await sql`SELECT grading_status, grade FROM exercise_submissions WHERE id = ${id};`;
+}
+
 const updateStatus = async (submission, status) => {
     const result = await sql`UPDATE exercise_submissions SET grading_status = ${status}
         WHERE id = ${submission.id}
@@ -23,4 +27,4 @@ const gradeSubmission = async (submission, grade) => {
     return result[0];
 }
 
-export { create, updateStatus, gradeSubmission };
+export { create, updateStatus, gradeSubmission, getSubmission };

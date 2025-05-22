@@ -13,9 +13,13 @@ const readExercises = async (languageId) => {
   return await sql`SELECT id, title, description FROM exercises WHERE language_id = ${languageId};`;
 };
 
+const getExerciseById = async (id) => {
+  return await sql`SELECT id, title, description FROM exercises WHERE id = ${id};`;
+}
+
 const remove = async (id) => {
   const result = await sql`DELETE FROM exercies WHERE id = ${id} RETURNING *`;
   return result[0];
 };
 
-export { create, readExercises, remove };
+export { create, readExercises, remove, getExerciseById };
