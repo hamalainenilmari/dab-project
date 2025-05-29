@@ -1,5 +1,6 @@
 <script>
     import { useUserState } from "../states/userState.svelte.js";
+    
     const userState = useUserState();
 
     export let id;
@@ -11,6 +12,42 @@
     let grade;
     let checkGrade = false;
     let subId;
+    let predictionResult = "";
+    let inputChanged = false;
+    let intervalPredFetch;
+    let showPred = false;
+
+    const fetchPrediction = async () => {
+        const response = await fetch(`/inference-api/predict`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({"exercise": id, "code": input})
+        });
+        const result = await response.json();
+        console.log("pred res: ", result.prediction);
+        predictionResult = result.prediction;
+        showPred = true;
+    }
+
+    function handleInput(event) {
+        input = event.target.value;
+        inputChanged = true;
+        console.log('Input changed:', input);
+
+        clearTimeout(intervalPredFetch);
+
+        intervalPredFetch = setTimeout(() => {
+            if (inputChanged) {
+                fetchPrediction();
+                inputChanged = false;
+            }
+        }, 500);
+
+        
+    }
+
 
     const fetchExercise = async () => {
         const response = await fetch(`/api/exercises/${id}`);
@@ -27,7 +64,7 @@
             headers: {
             'Content-Type': 'application/json'
             },
-            body: JSON.stringify({"source_code": submitText})
+            body: JSON.stringify({"source": submitText})
         });
 
         const result = await response.json();
@@ -63,11 +100,12 @@
 {/if}
 
 {#if userState.email}
-    <textarea bind:value={input}></textarea>
+    <textarea bind:value={input}  on:input={handleInput}></textarea>
     <button on:click={submitForm}>Submit</button>
 
     <p>Grading status: {gradingStatus}</p>
     <p>Grade: {grade}</p>
+    <p>Correctness estimate: {showPred ? `${Math.round(predictionResult)}%` : ""}</p>
 {:else}
     <p>Login or register to complete exercises.</p>
 {/if}

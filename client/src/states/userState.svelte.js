@@ -31,6 +31,9 @@ const useUserState = () => {
     get email() {
       return userState?.email;
     },
+    get id() {
+      return userState?.id;
+    }
   };
 };
 

@@ -1,6 +1,7 @@
 import { Redis } from "ioredis";
 import { Hono } from "@hono/hono";
 import * as submissionRepository from "./submissionRepository.js"
+import { levenshteinDistance } from "./grader-utils.js";
 
 const app = new Hono();
 
@@ -29,10 +30,18 @@ const consume = async () => {
     if (len > 0) {
         const result = await redis.brpop(QUEUE_NAME, 0);
         if (result) {
-            const [queue, submissionId] = result;
-            await submissionRepository.updateStatus(submissionId, "in_review");
+            const [queue, raw_submission] = result;
+            const submission = JSON.parse(raw_submission);
+            await submissionRepository.updateStatus(submission.id, "processing");
             sleep(Math.random() * (2000) + 1000)
-            await submissionRepository.gradeSubmission(submissionId, (Math.floor(Math.random() * 100)))
+
+            console.log("submission: ", submission);
+            const solution = await submissionRepository.getSolution(submission.exercise_id);
+            const solutionCode = solution[0].solution_code;
+            console.log("solution:", solution);
+            console.log("submission in grader: ", submission, submission.id, submission.source_code);
+            const grade = Math.ceil(100 * (1 - (levenshteinDistance(submission.source_code, solutionCode) / Math.max(submission.source_code.length, solutionCode.length))))
+            await submissionRepository.gradeSubmission(submission.id, grade)
         }
     } else {
         await sleep(250);

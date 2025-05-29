@@ -4,7 +4,7 @@ const sql = postgres();
 
 const create = async (submission,exercise_id) => {
   const result = await sql`INSERT INTO exercise_submissions (exercise_id, source_code)
-    VALUES (${exercise_id}, ${submission.source_code})
+    VALUES (${exercise_id}, ${submission.source})
     RETURNING *`;
   return result[0];
 };
@@ -24,4 +24,9 @@ const gradeSubmission = async (submissionId, grade) => {
     return result[0];
 }
 
-export { create, updateStatus, gradeSubmission };
+const getSolution = async (id) => {
+  return await sql`SELECT solution_code FROM exercises WHERE id = ${id};`;
+}
+
+
+export { create, updateStatus, gradeSubmission, getSolution };
